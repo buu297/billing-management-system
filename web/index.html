@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Billing Portal & Payment Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="brand">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <h1>Student Billing Portal</h1>
+        <p>Bursar & Financial Services • 2026 Academic Year</p>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <div class="student-picker">
+        <label for="studentSelect">Active Student:</label>
+        <select id="studentSelect">
+          <!-- Populated by JS -->
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Student Banner Card -->
+    <div class="student-banner">
+      <div class="student-info">
+        <h2 id="studentName">Loading Student...</h2>
+        <div class="student-meta">
+          <span>ID: <strong id="studentIdDisplay">---</strong></span>
+          <span>Dept: <strong id="studentDept">---</strong></span>
+          <span>Major: <strong id="studentMajor">---</strong></span>
+          <span>Email: <strong id="studentEmail">---</strong></span>
+        </div>
+      </div>
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span id="overallStatusPill" class="badge">ACTIVE</span>
+      </div>
+    </div>
+
+    <!-- Financial Metrics Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Remaining Balance</span>
+          <div class="stat-icon" style="background:#fee2e2; color:#b91c1c;">💳</div>
+        </div>
+        <div class="stat-value" id="metricOutstanding" style="color:#b91c1c;">$0.00</div>
+        <div class="stat-desc">Tuition & campus fees due</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Total Billed</span>
+          <div class="stat-icon" style="background:#eff6ff; color:#2563eb;">📑</div>
+        </div>
+        <div class="stat-value" id="metricBilled">$0.00</div>
+        <div class="stat-desc">Net payable for term</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Total Paid</span>
+          <div class="stat-icon" style="background:#dcfce7; color:#15803d;">✔</div>
+        </div>
+        <div class="stat-value" id="metricPaid" style="color:#15803d;">$0.00</div>
+        <div class="stat-desc">Settled transactions</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Payment Terms</span>
+          <div class="stat-icon" style="background:#eef2ff; color:#4f46e5;">📅</div>
+        </div>
+        <div class="stat-value" style="font-size:20px; padding-top:4px;">Installments</div>
+        <div class="stat-desc">50% partial payment supported</div>
+      </div>
+    </div>
+
+    <!-- Invoices Section -->
+    <div class="section-title">
+      <span>Tuition & Semester Invoices</span>
+      <span style="font-size:13px; font-weight:normal; color:var(--text-muted);">Term: Fall 2026</span>
+    </div>
+    <div class="invoices-grid" id="invoicesGrid">
+      <!-- Invoices dynamically loaded -->
+    </div>
+
+    <!-- Payment History Table -->
+    <div class="section-title">
+      <span>Official Payment History & Transactions</span>
+    </div>
+    <div class="card-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Txn Reference</th>
+            <th>Bill ID</th>
+            <th>Amount Paid</th>
+            <th>Payment Method</th>
+            <th>Status</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody id="paymentsTableBody">
+          <!-- Loaded by JS -->
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Process Tuition Payment</h3>
+        <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">
+          Invoice: <strong id="payInvNumber">INV-2026</strong> | Remaining Due: <strong id="payBalanceDue" style="color:var(--danger);">$0.00</strong>
+        </p>
+
+        <!-- Method Tabs -->
+        <div class="method-tabs">
+          <div class="method-tab active" data-method="VNPAY_QR">📱 VNPay / QR Pay</div>
+          <div class="method-tab" data-method="CREDIT_CARD">💳 Credit Card</div>
+          <div class="method-tab" data-method="BANK_TRANSFER">🏦 Bank Wire</div>
+        </div>
+
+        <!-- QR Code Section -->
+        <div id="qrSection">
+          <div class="qr-box">
+            <div class="qr-image">
+              <!-- SVG Mock QR Code -->
+              <svg viewBox="0 0 100 100" width="130" height="130">
+                <rect width="100" height="100" fill="#ffffff"/>
+                <path d="M10,10 h30 v30 h-30 z M15,15 v20 h20 v-20 z M20,20 h10 v10 h-10 z" fill="#0f172a"/>
+                <path d="M60,10 h30 v30 h-30 z M65,15 v20 h20 v-20 z M70,20 h10 v10 h-10 z" fill="#0f172a"/>
+                <path d="M10,60 h30 v30 h-30 z M15,65 v20 h20 v-20 z M20,70 h10 v10 h-10 z" fill="#0f172a"/>
+                <rect x="50" y="20" width="5" height="15" fill="#2563eb"/>
+                <rect x="20" y="50" width="15" height="5" fill="#2563eb"/>
+                <rect x="60" y="60" width="10" height="10" fill="#0f172a"/>
+                <rect x="75" y="75" width="15" height="15" fill="#2563eb"/>
+                <rect x="50" y="70" width="8" height="20" fill="#0f172a"/>
+                <circle cx="50" cy="50" r="10" fill="#2563eb"/>
+              </svg>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted);">Scan via Banking App (VietQR / VNPay)</p>
+            <p style="font-size:14px; font-weight:700; color:var(--primary); margin-top:4px;">Amount: <span id="qrAmount">$0.00</span></p>
+            <p style="font-size:11px; color:var(--text-muted);">Syntax: <code id="qrRef">TUITION-2026</code></p>
+          </div>
+        </div>
+
+        <!-- Card Section -->
+        <div id="cardSection" style="display:none;">
+          <div class="form-group">
+            <label>Cardholder Name</label>
+            <input type="text" class="form-control" placeholder="NGUYEN VAN AN" value="NGUYEN VAN AN">
+          </div>
+          <div class="form-group">
+            <label>Card Number</label>
+            <input type="text" class="form-control" placeholder="4111 2222 3333 4444" value="4532 •••• •••• 8821">
+          </div>
+          <div style="display:flex; gap:12px;">
+            <div class="form-group" style="flex:1;">
+              <label>Expiry</label>
+              <input type="text" class="form-control" placeholder="MM/YY" value="08/28">
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label>CVV / CVC</label>
+              <input type="password" class="form-control" placeholder="123" value="888">
+            </div>
+          </div>
+        </div>
+
+        <!-- Bank Transfer Section -->
+        <div id="bankSection" style="display:none;">
+          <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--border); font-size:12px; line-height:1.8; margin-bottom:14px;">
+            <div>Bank: <strong>Vietcombank (VCB) - HCMC Branch</strong></div>
+            <div>Beneficiary: <strong>UNIVERSITY FINANCIAL BURSAR</strong></div>
+            <div>Account Number: <strong>0071 0008 9999</strong></div>
+          </div>
+        </div>
+
+        <!-- Common Amount input -->
+        <div class="form-group">
+          <label>Payment Amount ($ USD)</label>
+          <input type="number" step="0.01" id="payAmountInput" class="form-control" style="font-size:16px; font-weight:700; color:var(--primary);">
+        </div>
+        <div class="form-group">
+          <label>Memo / Notes</label>
+          <input type="text" id="payNotesInput" class="form-control" value="Fall 2026 Tuition Online Payment">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitPay" onclick="submitPayment()">Confirm & Submit Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Itemized Breakdown Modal -->
+  <div class="modal-overlay" id="breakdownModal">
+    <div class="modal-content" style="max-width:650px;">
+      <div class="modal-header">
+        <h3>Fee Breakdown: <span id="breakdownInvNumber">INV</span></h3>
+        <button class="modal-close" onclick="closeBreakdownModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <table>
+          <thead>
+            <tr>
+              <th>Fee Category</th>
+              <th>Description</th>
+              <th style="text-align:right;">Amount ($)</th>
+            </tr>
+          </thead>
+          <tbody id="breakdownItemsBody"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeBreakdownModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Confirmation Modal -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal-content" style="max-width:440px; text-align:center;">
+      <div class="modal-body" style="padding:32px 24px;">
+        <div style="width:54px; height:54px; border-radius:50%; background:var(--success-bg); color:var(--success); display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 16px;">
+          ✔
+        </div>
+        <h3 style="font-size:20px; font-weight:700; margin-bottom:6px;">Payment Successful!</h3>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
+          Transaction verified and recorded to financial ledger.
+        </p>
+        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:14px; text-align:left; font-size:13px; line-height:1.9; margin-bottom:20px;">
+          <div>Transaction Ref: <code id="successRef">TXN-0000</code></div>
+          <div>Amount Paid: <strong id="successAmount" style="color:var(--success);">$0.00</strong></div>
+          <div>Remaining Balance: <strong id="successRemaining">$0.00</strong></div>
+          <div>ACID Commit Latency: <span id="successDuration">0 ms</span></div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="closeSuccessModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/mockData.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
